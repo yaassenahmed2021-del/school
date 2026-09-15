@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استعلام حسابات منصة البرمجة والذكاء الاصطناعي - ثانوي عام</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(30, 58, 95, 0.6);
+      border-radius: 16px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    header h1 {
+      font-size: 1.6rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    .search-box {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(30, 58, 95, 0.7);
+      color: #94a3b8;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: #0ea5e9;
+      color: #0f172a;
+      font-weight: bold;
+    }
+    .tab:hover:not(.active) {
+      background: rgba(14, 165, 233, 0.3);
+      color: #e2e8f0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: #f1f5f9;
+      font-size: 1.1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    button.search-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #0ea5e9, #0284c7);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    button.search-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    }
+    button.search-btn:active {
+      transform: translateY(0);
+    }
+    .result {
+      display: none;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+    .result.error {
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    .result.show { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result h2 {
+      color: #4ade80;
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result.error h2 { color: #f87171; }
+    .info-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .info-item {
+      background: rgba(30, 58, 95, 0.5);
+      padding: 12px 16px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .info-item .label {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .info-item .value {
+      font-family: 'Courier New', monospace;
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      font-weight: bold;
+      word-break: break-all;
+      direction: ltr;
+      text-align: left;
+    }
+    .info-item .value.name {
+      font-family: inherit;
+      direction: rtl;
+      text-align: right;
+      color: #38bdf8;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .badge.rasmi { background: #0ea5e9; color: #0f172a; }
+    .badge.khadamat { background: #a78bfa; color: #1e1b4b; }
+    .copy-btn {
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-right: 8px;
+    }
+    .copy-btn:hover { background: rgba(56, 189, 248, 0.35); }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .stats {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+  
+    .admin-btn {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+      z-index: 1000;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+    }
+    .admin-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+    .admin-modal.show { display: flex; }
+    .admin-box {
+      background: #0f172a;
+      border: 1px solid rgba(124, 58, 237, 0.5);
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .admin-box h2 {
+      color: #a78bfa;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.3rem;
+    }
+    .admin-box label {
+      display: block;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    .admin-box input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: #f1f5f9;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    .admin-box input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+    }
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .admin-actions button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .btn-login {
+      background: linear-gradient(90deg, #7c3aed, #5b21b6);
+      color: white;
+    }
+    .btn-cancel {
+      background: rgba(100, 116, 139, 0.3);
+      color: #e2e8f0;
+    }
+    .admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      overflow-y: auto;
+      backdrop-filter: blur(4px);
+    }
+    .admin-panel.show { display: flex; }
+    .admin-panel-box {
+      background: #0f172a;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .admin-panel-box h2 {
+      color: #a78bfa;
+      margin-bottom: 8px;
+    }
+    .admin-panel-box .subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+    .protect-result {
+      background: rgba(30, 58, 95, 0.5);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+    }
+    .protect-result.show { display: block; }
+    .protect-result .name {
+      color: #38bdf8;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .protect-result .code {
+      font-family: monospace;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+    }
+    .btn-protect {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-unprotect {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .protected-list {
+      margin-top: 24px;
+      border-top: 1px solid rgba(100,116,139,0.3);
+      padding-top: 16px;
+    }
+    .protected-list h3 {
+      color: #f87171;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    .protected-item {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    .close-admin {
+      background: rgba(100, 116, 139, 0.3);
+      color: #e2e8f0;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 استعلام حسابات منصة البرمجة والذكاء الاصطناعي - ثانوي عام</h1>
+      <p>مدرسة الدكتور أحمد بهجت الثانوية بنين – الجيزة / الهرم</p>
+      
+    </header>
+
+    <div class="search-box">
+      <div class="tabs">
+        <button class="tab" data-mode="name" onclick="setMode('name')">بالاسم الرباعي</button>
+        <button class="tab active" data-mode="code" onclick="setMode('code')">بكود الطالب</button>
+      </div>
+
+      <div id="namePanel" style="display:none">
+        <label for="nameInput">اسم الطالب الرباعي (أو الثلاثي إن كان مسجلاً كذلك)</label>
+        <input type="text" id="nameInput" placeholder="" autocomplete="off">
+        <p class="hint">يجب إدخال الاسم كاملاً كما هو مسجل. البحث يقبل الاسم الثلاثي فقط إذا كان الطالب مسجلاً بثلاثة أسماء فقط.</p>
+      </div>
+
+      <div id="codePanel" style="display:none;">
+        <label for="codeInput">كود الطالب</label>
+        <input type="text" id="codeInput" placeholder="" inputmode="numeric" autocomplete="off">
+        <p class="hint">أدخل كود الطالب المكون من 9 أرقام تقريباً.</p>
+      </div>
+
+      <button class="search-btn" onclick="search()">بحث</button>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <footer></footer>
+  </div>
+
+  <script>
+    // بيانات الطلاب (مأخوذة بدقة من الكشوف المقدمة)
+    const students = [
+      {"code": "463194388", "name": "ابانوب اميل لطفى حكيم", "user": "463194388", "pass": "r?HG2XDL", "type": "رسمي"},
+      {"code": "463259898", "name": "ابراهيم محمد صالح مبروك", "user": "463259898", "pass": "tdQq!D7m", "type": "رسمي"},
+      {"code": "471646313", "name": "ابراهيم محمد عبد القادر عبد القادر", "user": "471646313", "pass": "ND9yh6_m", "type": "رسمي"},
+      {"code": "471386842", "name": "ابراهيم مرزوق ابراهيم محمد", "user": "471386842", "pass": "b6j3P8?K", "type": "رسمي"},
+      {"code": "471409260", "name": "احمد ابراهيم فتحى حسن", "user": "471409260", "pass": "rv_rjGc3", "type": "رسمي"},
+      {"code": "471646393", "name": "احمد ابراهيم محى الدين حنفى", "user": "471646393", "pass": "6Yukmer!", "type": "رسمي"},
+      {"code": "470787883", "name": "احمد البدوى عبد الرحمن بخيت رضوان", "user": "470787883", "pass": "JPh9L4?u", "type": "رسمي"},
+      {"code": "472672165", "name": "احمد حمدي عبد المنعم زكي", "user": "472672165", "pass": "fLV2CS!x", "type": "رسمي"},
+      {"code": "473370682", "name": "احمد خالد احمد ابوزيد", "user": "473370682", "pass": "jD5!8rWn", "type": "رسمي"},
+      {"code": "473464066", "name": "احمد خالد اسماعيل زكي", "user": "473464066", "pass": "PYXCh5B_", "type": "رسمي"},
+      {"code": "473369576", "name": "احمد خالد الصابر سالم", "user": "473369576", "pass": "Ag6qdK!M", "type": "رسمي"},
+      {"code": "470642011", "name": "احمد رمزى على صالح محجوب", "user": "470642011", "pass": "6G7HJaC?", "type": "رسمي"},
+      {"code": "471914497", "name": "احمد زكريا عبد الرحيم الصاوى", "user": "471914497", "pass": "mmNrpt3!", "type": "رسمي"},
+      {"code": "486515502", "name": "احمد سامح عبده محمد", "user": "486515502", "pass": "Rh!Da98y", "type": "رسمي"},
+      {"code": "471009728", "name": "احمد سمير احمد على", "user": "471009728", "pass": "mDBNh6R_", "type": "رسمي"},
+      {"code": "463651059", "name": "احمد شعبان محمود احمد", "user": "463651059", "pass": "QL7U8!bs", "type": "رسمي"},
+      {"code": "472018500", "name": "احمد عاطف عبد الحليم ابو طالب", "user": "472018500", "pass": "YjF6su?4", "type": "رسمي"},
+      {"code": "470969439", "name": "احمد عمر عبد الهادي وزير", "user": "470969439", "pass": "PPq9ca3!", "type": "رسمي"},
+      {"code": "463568023", "name": "احمد عمر نصر محمد حمد الجلنط", "user": "463568023", "pass": "6DkBta7?", "type": "رسمي"},
+      {"code": "471836497", "name": "احمد عمرو عبد المنعم احمد", "user": "471836497", "pass": "KBb?78_!", "type": "رسمي"},
+      {"code": "464716315", "name": "احمد كمال عبد المجيد سعيد", "user": "464716315", "pass": "g7?HnSC3", "type": "رسمي"},
+      {"code": "471917385", "name": "احمد محمد احمد محمد", "user": "471917385", "pass": "vU3dXGW!", "type": "رسمي"},
+      {"code": "471244904", "name": "احمد محمد حسن احمد", "user": "471244904", "pass": "usZ3Mb5?", "type": "رسمي"},
+      {"code": "471737545", "name": "احمد محمد حسين عباس فؤاد", "user": "471737545", "pass": "m8qpnBY_", "type": "رسمي"},
+      {"code": "471339384", "name": "احمد محمد زين العابدين حسان", "user": "471339384", "pass": "dm4dA!c5", "type": "رسمي"},
+      {"code": "471791428", "name": "احمد محمد سعد محمد", "user": "471791428", "pass": "76guEe_N", "type": "رسمي"},
+      {"code": "476618115", "name": "احمد محمد سعيد عبد الموجود علي", "user": "476618115", "pass": "pv3cXm_t", "type": "رسمي"},
+      {"code": "472912480", "name": "احمد محمد عبد العال على السيد", "user": "472912480", "pass": "XKM5Hj_b", "type": "رسمي"},
+      {"code": "491221701", "name": "احمد محمد عبد المجيد توفيق احمد", "user": "491221701", "pass": "Cq?HeH?6", "type": "رسمي"},
+      {"code": "468799500", "name": "احمد محمد نجيب امين", "user": "468799500", "pass": "?kRW8Vmz", "type": "رسمي"},
+      {"code": "471646633", "name": "احمد محمود عبد القادر عبد القادر", "user": "471646633", "pass": "q!2dmRaW", "type": "رسمي"},
+      {"code": "471164847", "name": "ادم الدغرى سعد محمد سالم", "user": "471164847", "pass": "JV!2PxSS", "type": "رسمي"},
+      {"code": "471453431", "name": "ادم رجب احمد رشوان على", "user": "471453431", "pass": "U?nb96_r", "type": "رسمي"},
+      {"code": "473464107", "name": "ادم طه عوض سيد", "user": "473464107", "pass": "S!Mh6rgD", "type": "رسمي"},
+      {"code": "468827509", "name": "ادم علاء الدين احمد حسين", "user": "468827509", "pass": "kPkZ4_YU", "type": "رسمي"},
+      {"code": "472912648", "name": "ادم محمد منير مرتضى", "user": "472912648", "pass": "ZL2?9?vz", "type": "رسمي"},
+      {"code": "463259839", "name": "ادهم شوقي شمس الدين عبد المعطى", "user": "463259839", "pass": "!9rP7L9B", "type": "رسمي"},
+      {"code": "463550813", "name": "أدهم عاطف شعبان عبدالوهاب عبدالمقصود", "user": "463550813", "pass": "dE_UiT6b", "type": "رسمي"},
+      {"code": "473041011", "name": "ادهم مجدی يحيي محمد", "user": "473041011", "pass": "2YBe!qv2", "type": "رسمي"},
+      {"code": "470874835", "name": "ادهم محمد شكرى السيد محمد", "user": "470874835", "pass": "7ek?tVCj", "type": "رسمي"},
+      {"code": "471917809", "name": "ادهم محمد صادق احمد", "user": "471917809", "pass": "6vXhJ8??", "type": "رسمي"},
+      {"code": "468809262", "name": "ادهم مصطفى جمال حسين", "user": "468809262", "pass": "wxx8eYt?", "type": "رسمي"},
+      {"code": "467751821", "name": "ادهم ناجح محمد احمد", "user": "467751821", "pass": "2MacSR!D", "type": "رسمي"},
+      {"code": "471359385", "name": "اسلام اشرف عدلى شعبان", "user": "471359385", "pass": "z5r_cXdp", "type": "رسمي"},
+      {"code": "471772866", "name": "اسلام شعبان عبدالتواب اسماعيل", "user": "471772866", "pass": "!HTQt5sz", "type": "رسمي"},
+      {"code": "471456911", "name": "اسلام فتحى عبد التواب رياض عبيد السيد", "user": "471456911", "pass": "Ev_3kwYS", "type": "رسمي"},
+      {"code": "470831977", "name": "اشرف محمد عبد الله محمد عبد المنعم", "user": "470831977", "pass": "c!Cf6iUA", "type": "رسمي"},
+      {"code": "481525720", "name": "الشافعى على الشافعى فرج", "user": "481525720", "pass": "X?PCic3v", "type": "رسمي"},
+      {"code": "473171559", "name": "امير محمد السيد عبدالسلام", "user": "473171559", "pass": "8pPfn_N4", "type": "رسمي"},
+      {"code": "471077986", "name": "امير ناصر سلطان منذى عبد العليم", "user": "471077986", "pass": "c8h?cWRy", "type": "رسمي"},
+      {"code": "471205984", "name": "امين عبد الناصر عبد السلام سعد بدوى", "user": "471205984", "pass": "hK_jH?95", "type": "رسمي"},
+      {"code": "463583527", "name": "انس ايهاب عباس محمد سليمان", "user": "463583527", "pass": "Q?X3Rfis", "type": "رسمي"},
+      {"code": "477135780", "name": "انس محمد محمود حسن البحيرى", "user": "477135780", "pass": "!hxgT5Ek", "type": "رسمي"},
+      {"code": "470903521", "name": "انس وائل محمد عبد الونيس عبد الحافظ", "user": "470903521", "pass": "ZQ5p_uxr", "type": "رسمي"},
+      {"code": "482180384", "name": "اياد احمد قديس يسن", "user": "482180384", "pass": "Yx7e!Qqf", "type": "رسمي"},
+      {"code": "463272943", "name": "اياد شريف احمد علي حسين", "user": "463272943", "pass": "8JD85Ks!", "type": "رسمي"},
+      {"code": "487140126", "name": "اياد عبدالعزيز رمضان عبد العزيز سوقى", "user": "487140126", "pass": "6aSL?auF", "type": "رسمي"},
+      {"code": "481950265", "name": "اياد محمد بيومى وهبه بيومى", "user": "481950265", "pass": "aC5J!mKK", "type": "رسمي"},
+      {"code": "472511126", "name": "ايهاب حسام الدين حمدى خضرى", "user": "472511126", "pass": "4GkSM!ie", "type": "رسمي"},
+      {"code": "463252019", "name": "باسل احمد وهيب حموده", "user": "463252019", "pass": "LnRq_cA3", "type": "رسمي"},
+      {"code": "463516364", "name": "باسل ايهاب انطوان مسعد", "user": "463516364", "pass": "J_Xmc_4E", "type": "رسمي"},
+      {"code": "471238395", "name": "باسم محمد محمود عبد الرحمن", "user": "471238395", "pass": "kYTA3NQ?", "type": "رسمي"},
+      {"code": "472498331", "name": "باسم هشام احمد محمود", "user": "472498331", "pass": "PfnT_EF4", "type": "رسمي"},
+      {"code": "481665489", "name": "باسم ياسر عبدالفتاح محمد", "user": "481665489", "pass": "Z!a89PW_", "type": "رسمي"},
+      {"code": "471836543", "name": "بلال احمد سيد محمد", "user": "471836543", "pass": "zVH_gT4D", "type": "رسمي"},
+      {"code": "471078034", "name": "بلال عادل عبد الجواد عبد النعيم ادم", "user": "471078034", "pass": "kRt32e?j", "type": "رسمي"},
+      {"code": "471777875", "name": "بلال محمود حسن محمود", "user": "471777875", "pass": "xN!nhS9L", "type": "رسمي"},
+      {"code": "463253824", "name": "بولا فريد منير تقاوى", "user": "463253824", "pass": "73uHqSp!", "type": "رسمي"},
+      {"code": "463251186", "name": "تامر سامح عادل عبد الرحمن", "user": "463251186", "pass": "59p9?Vtl", "type": "رسمي"},
+      {"code": "467990983", "name": "جاسر جمعه السيد كامل ابو عجيله", "user": "467990983", "pass": "C94nP5!?", "type": "رسمي"},
+      {"code": "470787899", "name": "جاسر عماد سيد فتح الباب حسين", "user": "470787899", "pass": "k_rb87PX", "type": "رسمي"},
+      {"code": "463513043", "name": "جاسر محمد ابراهيم حيدر محمد", "user": "463513043", "pass": "qy?PX8?5", "type": "رسمي"},
+      {"code": "463303258", "name": "جاسر محمد على امام", "user": "463303258", "pass": "9QWcL!Rd", "type": "رسمي"},
+      {"code": "463552156", "name": "جاسم محمد حسين زعفان حسن", "user": "463552156", "pass": "Up6k?kle", "type": "رسمي"},
+      {"code": "475631848", "name": "حسام رمضان احمد محمد", "user": "475631848", "pass": "R7?QcUdr", "type": "رسمي"},
+      {"code": "468800384", "name": "حسن احمد حسن محمود", "user": "468800384", "pass": "_ckFmY96", "type": "رسمي"},
+      {"code": "463552264", "name": "حسن اسماعيل حسن اسماعيل", "user": "463552264", "pass": "?8iWu2yM", "type": "رسمي"},
+      {"code": "491095532", "name": "حسن طارق حسن عبدالدايم", "user": "491095532", "pass": "_Tvzi3ZF", "type": "رسمي"},
+      {"code": "471164508", "name": "حسن على محمد على عليان", "user": "471164508", "pass": "hM?6Qr6T", "type": "رسمي"},
+      {"code": "471351971", "name": "حسن وليد عزت محمد", "user": "471351971", "pass": "GDkf933_", "type": "رسمي"},
+      {"code": "473464293", "name": "حسين ابراهيم محمد اسماعيل", "user": "473464293", "pass": "csHUU67_", "type": "رسمي"},
+      {"code": "473422220", "name": "حسين رجب ابراهيم عبد المقصود", "user": "473422220", "pass": "bzJ_R9nc", "type": "رسمي"},
+      {"code": "472913021", "name": "حسين محمد حسين عزوز عبد الغنى", "user": "472913021", "pass": "8vbF?fYa", "type": "رسمي"},
+      {"code": "471308744", "name": "حمزة السعيد محمد عبدالشافي", "user": "471308744", "pass": "!sVY!4ie", "type": "رسمي"},
+      {"code": "463551917", "name": "حمزة حسن عماد عشماوى عبدالعاطى", "user": "463551917", "pass": "fpj_4y7T", "type": "رسمي"},
+      {"code": "471316241", "name": "حمزة احمد ابوضيف تميم", "user": "471316241", "pass": "ptU2d7B!", "type": "رسمي"},
+      {"code": "472073774", "name": "حمزة خميس عبدالبارى عبدالعزيز", "user": "472073774", "pass": "gbGBL!N7", "type": "رسمي"},
+      {"code": "472619519", "name": "حمزة سيد السيد محمود محمد", "user": "472619519", "pass": "38_VcKyg", "type": "رسمي"},
+      {"code": "481904683", "name": "حمزة سيد جابر محمد مبهوب", "user": "481904683", "pass": "y?f9VMze", "type": "رسمي"},
+      {"code": "468809960", "name": "حمزة محمد حسن عبدالرحمن", "user": "468809960", "pass": "fCc!4eHK", "type": "رسمي"},
+      {"code": "471579637", "name": "ذياد ربيع جمعه صابر", "user": "471579637", "pass": "f2!8gX_w", "type": "رسمي"},
+      {"code": "473160517", "name": "ذياد محمد سيد علي", "user": "473160517", "pass": "tx2xD!Xm", "type": "رسمي"},
+      {"code": "471078084", "name": "رمضان حسنى حافظ محمود عطا", "user": "471078084", "pass": "Cvcn2u!G", "type": "رسمي"},
+      {"code": "464821455", "name": "رياض حمدى داود حسن", "user": "464821455", "pass": "K?s2yQKS", "type": "رسمي"},
+      {"code": "468809530", "name": "زياد احمد عبدالعظيم عطيه", "user": "468809530", "pass": "5?tdiVjn", "type": "رسمي"},
+      {"code": "468826301", "name": "زياد احمد محمود احمد", "user": "468826301", "pass": "eTBK!Hu2", "type": "رسمي"},
+      {"code": "469366344", "name": "زياد الامير محمد احمد", "user": "469366344", "pass": "67!aCwss", "type": "رسمي"},
+      {"code": "470787813", "name": "زياد حسن عبد العليم حسين ابراهيم", "user": "470787813", "pass": "Pg9Yy6T!", "type": "رسمي"},
+      {"code": "469362139", "name": "زياد خالد احمد ابراهيم", "user": "469362139", "pass": "!Wu728jW", "type": "رسمي"},
+      {"code": "466562667", "name": "زياد د رويش جمال درويش عوض", "user": "466562667", "pass": "A9pBHz!m", "type": "رسمي"},
+      {"code": "471456839", "name": "زياد صابر عامر خطاب", "user": "471456839", "pass": "J_87Y8tn", "type": "رسمي"},
+      {"code": "472510261", "name": "زياد صبحى محمد المعز على", "user": "472510261", "pass": "rs_8Sg_6", "type": "رسمي"},
+      {"code": "471579769", "name": "زياد عصام محمد احمد", "user": "471579769", "pass": "?6_7RpXb", "type": "رسمي"},
+      {"code": "470922404", "name": "زياد عماد محمد عبدالستار احمد", "user": "470922404", "pass": "6a_Zs3Gi", "type": "رسمي"},
+      {"code": "473068607", "name": "زياد كمال صابر كامل", "user": "473068607", "pass": "Dm4Er_92", "type": "رسمي"},
+      {"code": "471656186", "name": "زياد محمد عبد العاطى عبد الكريم", "user": "471656186", "pass": "gnEWj9?3", "type": "رسمي"},
+      {"code": "472510342", "name": "زياد محمد عبدالمقصود حسن شعبان", "user": "472510342", "pass": "b!t6CsAN", "type": "رسمي"},
+      {"code": "473152466", "name": "زياد محمد محمد أمين عبدالسلام", "user": "473152466", "pass": "SSb?JxD5", "type": "رسمي"},
+      {"code": "471675764", "name": "زياد محمود سيد عبدالحميد محمد", "user": "471675764", "pass": "s?9acJDb", "type": "رسمي"},
+      {"code": "490518669", "name": "زياد محمود محمد ابراهيم محمود", "user": "490518669", "pass": "FQ_9nJji", "type": "رسمي"},
+      {"code": "476529872", "name": "زياد وليد مجدى عبدالسميع على", "user": "476529872", "pass": "b9_D4aHt", "type": "رسمي"},
+      {"code": "471656271", "name": "سامح ابراهيم سعيد عبد العاطى", "user": "471656271", "pass": "9_jbpgWE", "type": "رسمي"},
+      {"code": "464895965", "name": "ستيفين يوسف سامي ناشد بشاي", "user": "464895965", "pass": "5ScGJ?Au", "type": "رسمي"},
+      {"code": "481519492", "name": "سعد نصر سعد طلبة الشافعي", "user": "481519492", "pass": "GD!W8qYb", "type": "رسمي"},
+      {"code": "464428607", "name": "سعيد أحمد سعيد يوسف السيد", "user": "464428607", "pass": "Q?AGpi2p", "type": "رسمي"},
+      {"code": "469362183", "name": "سعيد حسن سعيد عبد الحميد", "user": "469362183", "pass": "3P94Rpq?", "type": "رسمي"},
+      {"code": "497867621", "name": "سيف احمد خليل عبد الرحمن", "user": "497867621", "pass": "2YKjDS_u", "type": "رسمي"},
+      {"code": "471669958", "name": "سيف احمد مصطفى سيد", "user": "471669958", "pass": "5uup4?H4", "type": "رسمي"},
+      {"code": "471083864", "name": "سيف الدين حسن خليفة محمد", "user": "471083864", "pass": "52ez!4Si", "type": "رسمي"},
+      {"code": "471316340", "name": "سيف الدين فارس عبد الوهاب ابراهيم", "user": "471316340", "pass": "v?2!JaW!", "type": "رسمي"},
+      {"code": "478393904", "name": "عبد الرحمن محمد فهمي عبد العزيز", "user": "478393904", "pass": "dR2q89_m", "type": "رسمي"},
+      {"code": "472913567", "name": "عبد الرحمن معوض يونس عبد الحافظ", "user": "472913567", "pass": "Nxm5Xd_8", "type": "رسمي"},
+      {"code": "471778421", "name": "عبد الرحمن نوية مختار عبد التواب", "user": "471778421", "pass": "!5zRtP4s", "type": "رسمي"},
+      {"code": "476685561", "name": "عبد الله السيد داود اسماعيل", "user": "476685561", "pass": "_NJHDm6k", "type": "رسمي"},
+      {"code": "471163696", "name": "عبد الله حسن محى الدين محمد قاسم", "user": "471163696", "pass": "W?73bWJT", "type": "رسمي"},
+      {"code": "471148881", "name": "عبد الله سيد محمود عبد العزيز محمد", "user": "471148881", "pass": "9K_M_Jmz", "type": "رسمي"},
+      {"code": "471097863", "name": "عبد الله طلعت محمد عبد العال", "user": "471097863", "pass": "krNvp2J?", "type": "رسمي"},
+      {"code": "482601246", "name": "عبد الله عمرو محمد فخرى محمد", "user": "482601246", "pass": "2?qSergX", "type": "رسمي"},
+      {"code": "470752105", "name": "عبد الله عيد محمد عبد العليم", "user": "470752105", "pass": "t_4BeRsG", "type": "رسمي"},
+      {"code": "467738679", "name": "عبد الله نادر نبيل احمد محمد", "user": "467738679", "pass": "SR_KYc8Z", "type": "رسمي"},
+      {"code": "485592550", "name": "عبد الله وهبه يونس وهبه", "user": "485592550", "pass": "ZKfuP!44", "type": "رسمي"},
+      {"code": "490976626", "name": "عبد الملك محمد احمد عبد البارى", "user": "490976626", "pass": "Ab!8yXHK", "type": "رسمي"},
+      {"code": "471520803", "name": "عبد الهادى ضاحى محمود عبد اللاه على", "user": "471520803", "pass": "p!Pie9RR", "type": "رسمي"},
+      {"code": "487120444", "name": "عبدالرحمن احمد على عبدالوهاب", "user": "487120444", "pass": "DwXnj5C_", "type": "رسمي"},
+      {"code": "494342453", "name": "عبدالرحمن احمد محمود عرفه الشرباصى", "user": "494342453", "pass": "7DGrYxD?", "type": "رسمي"},
+      {"code": "468530656", "name": "عبدالرحمن اسامه محمد حسين", "user": "468530656", "pass": "sn9?S8Rk", "type": "رسمي"},
+      {"code": "487248557", "name": "عبدالرحمن اشرف احمد محمد", "user": "487248557", "pass": "RGx5d_Zc", "type": "رسمي"},
+      {"code": "471008995", "name": "عبدالرحمن بدر محمد زكى", "user": "471008995", "pass": "fK_Ty5Fq", "type": "رسمي"},
+      {"code": "463594506", "name": "عبدالرحمن حمدى حسن سعداوى", "user": "463594506", "pass": "cVZsr?y3", "type": "رسمي"},
+      {"code": "469580300", "name": "عبدالرحمن سامح حسنى محمد", "user": "469580300", "pass": "7!WhR!zn", "type": "رسمي"},
+      {"code": "463836361", "name": "عبدالرحمن سيد رمضان عليوه محمد", "user": "463836361", "pass": "pX!jnR4e", "type": "رسمي"},
+      {"code": "472054734", "name": "عبدالرحمن شريف فاروق عبداللطيف", "user": "472054734", "pass": "67K9_LkV", "type": "رسمي"},
+      {"code": "469268342", "name": "عبدالرحمن عصام عبد الفتاح احمد", "user": "469268342", "pass": "YdHLgP!4", "type": "رسمي"},
+      {"code": "465211908", "name": "عبدالرحمن فريد فاروق احمد", "user": "465211908", "pass": "BGGlwg2k", "type": "رسمي"},
+      {"code": "469535737", "name": "عبدالرحمن محمد وديع عبدالمنعم عبدالحليم", "user": "469535737", "pass": "cBazjTN_", "type": "رسمي"},
+      {"code": "463594190", "name": "عبدالرحمن يحيى زكريا محمد مالك", "user": "463594190", "pass": "J6wx_N4Q", "type": "رسمي"},
+      {"code": "471403423", "name": "عبدالله احمد شعراوي ابراهيم", "user": "471403423", "pass": "!3uxsC_2", "type": "رسمي"},
+      {"code": "471580272", "name": "عبدالله ربيع محمد سيد", "user": "471580272", "pass": "QE!n2wUv", "type": "رسمي"},
+      {"code": "471918254", "name": "عبدالله عبد القادر فراج محمود", "user": "471918254", "pass": "Y_st29Pi", "type": "رسمي"},
+      {"code": "490462888", "name": "عبدالله عمرو سعيد ابراهيم", "user": "490462888", "pass": "aXK2P?sM", "type": "رسمي"},
+      {"code": "474208324", "name": "عبدالله نظمى سعد بيومى", "user": "474208324", "pass": "42KPqU7?", "type": "رسمي"},
+      {"code": "490548015", "name": "عدنان محمد احمد عدنان احمد حسن", "user": "490548015", "pass": "3HJcG7zc", "type": "رسمي"},
+      {"code": "470841101", "name": "عز الدين سيد عبدالحليم عباس جاب الله", "user": "470841101", "pass": "?q2dLh?B", "type": "رسمي"},
+      {"code": "470841087", "name": "عصام ابوالعلا احمد ابوالعلا ابوالعلا", "user": "470841087", "pass": "85vhd5g_", "type": "رسمي"},
+      {"code": "463690335", "name": "على احمد على زيدان محمد", "user": "463690335", "pass": "s?EyN9!3", "type": "رسمي"},
+      {"code": "471918364", "name": "على احمد على موسى", "user": "471918364", "pass": "qtmYL847", "type": "رسمي"},
+      {"code": "471165620", "name": "على خالد على عبد الحميد على", "user": "471165620", "pass": "8v_cg5Vj", "type": "رسمي"},
+      {"code": "471316313", "name": "على مجدى داود حسن", "user": "471316313", "pass": "4?hTn6Wt", "type": "رسمي"},
+      {"code": "472961281", "name": "على محسن حسين مصطفى", "user": "472961281", "pass": "2UXv?A5H", "type": "رسمي"},
+      {"code": "468101658", "name": "على محمد على بكرى", "user": "468101658", "pass": "R?Rpp8Nu", "type": "رسمي"},
+      {"code": "463690446", "name": "على محمد على يوسف على", "user": "463690446", "pass": "5hfe!y?W", "type": "رسمي"},
+      {"code": "468800939", "name": "على محمد فوزى مصطفى", "user": "468800939", "pass": "7xrA!kYj", "type": "رسمي"},
+      {"code": "463594342", "name": "على مؤمن زارع محمد عبدالله", "user": "463594342", "pass": "Q8w4v!F5", "type": "رسمي"},
+      {"code": "468800682", "name": "على ياسر نادى كليب", "user": "468800682", "pass": "6CE5v_yF", "type": "رسمي"},
+      {"code": "473159343", "name": "علي اشرف علي محمدعبد العزيز", "user": "473159343", "pass": "_pVhY74h", "type": "رسمي"},
+      {"code": "467751127", "name": "علي محمد علي محمود سيد", "user": "467751127", "pass": "gtG4_xvf", "type": "رسمي"},
+      {"code": "464796455", "name": "عمار احمد فاروق ايوب", "user": "464796455", "pass": "8dMy3!_v", "type": "رسمي"},
+      {"code": "463594432", "name": "عمار عبدالرحمن عبدالحافظ محمد عبدالواحد", "user": "463594432", "pass": "jM?3f6N", "type": "رسمي"},
+      {"code": "463258949", "name": "عمار محمد عامر سعد امين", "user": "463258949", "pass": "V7UJ!4gX", "type": "رسمي"},
+      {"code": "468101721", "name": "عمر احمد جمال سيد", "user": "468101721", "pass": "7Sa9z!Qy", "type": "رسمي"},
+      {"code": "464268839", "name": "عمر احمد حسين طلبه منصور", "user": "464268839", "pass": "c?J6NZlu", "type": "رسمي"},
+      {"code": "468803300", "name": "عمر احمد سيد عبدالعزيز", "user": "468803300", "pass": "R9jHQxZ?", "type": "رسمي"},
+      {"code": "472913646", "name": "عمر احمد عبد العزيز عبد الغني", "user": "472913646", "pass": "n42Ehst_", "type": "رسمي"},
+      {"code": "468796060", "name": "عمر احمد محمود مصطفى", "user": "468796060", "pass": "8vHs?eLn", "type": "رسمي"},
+      {"code": "468662822", "name": "عمر احمد هاشم مرزوق", "user": "468662822", "pass": "RRb?4rw2", "type": "رسمي"},
+      {"code": "471924850", "name": "عمر حسام جوده رشاد", "user": "471924850", "pass": "t?TLNyZ3", "type": "رسمي"},
+      {"code": "465169532", "name": "عمر رأفت محمد السيد", "user": "465169532", "pass": "nx_z2Mmd", "type": "رسمي"},
+      {"code": "468101825", "name": "عمر رجب عبدربه عبدالهادى", "user": "468101825", "pass": "X37dwh?T", "type": "رسمي"},
+      {"code": "471581006", "name": "عمر شريف جابر احمد", "user": "471581006", "pass": "y9Mh_PQx", "type": "رسمي"},
+      {"code": "471166943", "name": "عمر شعبان جمعه محمد جمعه", "user": "471166943", "pass": "tu4WcrV6", "type": "رسمي"},
+      {"code": "473747450", "name": "عمر صبحى منصور عيسى", "user": "473747450", "pass": "Y5_YXp2", "type": "رسمي"},
+      {"code": "473064417", "name": "عمر عمار عباس طنطاوي", "user": "473064417", "pass": "2w8TXna!", "type": "رسمي"},
+      {"code": "471021172", "name": "عمر فتحي جلال عبد العظيم", "user": "471021172", "pass": "E5?z5?d!", "type": "رسمي"},
+      {"code": "468802037", "name": "عمر ماهر ربيع احمد", "user": "468802037", "pass": "4M?Dek4t", "type": "رسمي"},
+      {"code": "486344176", "name": "عمر محمد رمضان محمد", "user": "486344176", "pass": "fmNvQ7!m", "type": "رسمي"},
+      {"code": "471207734", "name": "عمر محمد سعد غريب بيومى", "user": "471207734", "pass": "4z_8rjVd", "type": "رسمي"},
+      {"code": "470775935", "name": "عمر محمد صلاح قرني", "user": "470775935", "pass": "5BLzPGL_", "type": "رسمي"},
+      {"code": "472673378", "name": "عمر محمد عيد ربه يوسف سليمان", "user": "472673378", "pass": "chs!75eu", "type": "رسمي"},
+      {"code": "469296683", "name": "عمر محمد عبدالوهاب عبدالموجود", "user": "469296683", "pass": "VAm7w!_J", "type": "رسمي"},
+      {"code": "471021222", "name": "عمر محمد علي عبد الحميد", "user": "471021222", "pass": "N?4P5hMC", "type": "رسمي"},
+      {"code": "468802162", "name": "عمر وهبه الشحات محمد", "user": "468802162", "pass": "4w?4yT!J", "type": "رسمي"},
+      {"code": "471206777", "name": "عمرو محمود محمد عبد المعز عبد الجيد", "user": "471206777", "pass": "ms3E_Hja", "type": "رسمي"},
+      {"code": "470922182", "name": "فارس ابوبكر مبروك ابوبكر حسين", "user": "470922182", "pass": "ac_99FpF", "type": "رسمي"},
+      {"code": "470841117", "name": "فارس احمد صبره عبدالله حسين", "user": "470841117", "pass": "55sV_HfM", "type": "رسمي"},
+      {"code": "470898130", "name": "فارس أنور زكريا احمد شحاته", "user": "470898130", "pass": "5z!YZyjN", "type": "رسمي"},
+      {"code": "464465599", "name": "فارس سيد عبد القادر حسين", "user": "464465599", "pass": "uX7avz!Z", "type": "رسمي"},
+      {"code": "472913739", "name": "فارس عبد الرحمن بن على بن عبد الرحمن", "user": "472913739", "pass": "j7N8Ra5!", "type": "رسمي"},
+      {"code": "476685598", "name": "فاروق محمد فاروق محمد حسن", "user": "476685598", "pass": "3bw9VPa!", "type": "رسمي"},
+      {"code": "471656440", "name": "فتحى محمود فتح الباب احمد", "user": "471656440", "pass": "YyBA7UbH", "type": "رسمي"},
+      {"code": "473481194", "name": "فيلوباتير شريف مجدى فارس", "user": "473481194", "pass": "faY!Sa3!", "type": "رسمي"},
+      {"code": "472028715", "name": "فيلوباتير وليد عيد راغب عطيه", "user": "472028715", "pass": "RZq_2wDH", "type": "رسمي"},
+      {"code": "471020832", "name": "فيلوباتير هاني سلامه بطرس", "user": "471020832", "pass": "BB!7QywV", "type": "رسمي"},
+      {"code": "467697579", "name": "كاراس نبيل سامي حكيم", "user": "467697579", "pass": "5nsBbCc?", "type": "رسمي"},
+      {"code": "472913965", "name": "كريم تامر جابر محمد سيد", "user": "472913965", "pass": "Z!Rp878e", "type": "رسمي"},
+      {"code": "486515571", "name": "كريم على فايز حسين", "user": "486515571", "pass": "9!nKje_Q", "type": "رسمي"},
+      {"code": "471077609", "name": "كريم محمد صابر سيد سعيد", "user": "471077609", "pass": "NLN3m!Fn", "type": "رسمي"},
+      {"code": "473369718", "name": "كريم محمد لطفى فرج", "user": "473369718", "pass": "8Qd9Z!v!", "type": "رسمي"},
+      {"code": "471530507", "name": "كريم محمود محمد فتح الاله السحيمى", "user": "471530507", "pass": "Jsu?Z5Hs", "type": "رسمي"},
+      {"code": "471308613", "name": "كريم معتز عوض محمد", "user": "471308613", "pass": "_B!WuPm9", "type": "رسمي"},
+      {"code": "464404099", "name": "كريم وليد سليمان احمد عوض", "user": "464404099", "pass": "_G8Pc!E_", "type": "رسمي"},
+      {"code": "464514043", "name": "كريم وليد فوزى محمد", "user": "464514043", "pass": "f7tu?XuM", "type": "رسمي"},
+      {"code": "477555195", "name": "مازن جمال سعد محمد", "user": "477555195", "pass": "9rG_fQ5C", "type": "رسمي"},
+      {"code": "473165667", "name": "مازن دسوقي علي عبد العظيم", "user": "473165667", "pass": "4B_cYkL?", "type": "رسمي"},
+      {"code": "471879606", "name": "مازن محمد فتحى احمد", "user": "471879606", "pass": "Nsx2!X!N", "type": "رسمي"},
+      {"code": "470922352", "name": "مازن محمد مجدى احمد محمد", "user": "470922352", "pass": "8S!zyBx4", "type": "رسمي"},
+      {"code": "472760434", "name": "مازن محمود عبد الخالق سيد", "user": "472760434", "pass": "rKUvX83!", "type": "رسمي"},
+      {"code": "463259168", "name": "مالك تامر قنديل ابراهيم", "user": "463259168", "pass": "2CBce!j!", "type": "رسمي"},
+      {"code": "463154838", "name": "مالك رضا رمضان محمد محمد رضوان", "user": "463154838", "pass": "nRG7av!5", "type": "رسمي"},
+      {"code": "467738805", "name": "مالك محمد محمد محمد عبد العال عامر", "user": "467738805", "pass": "72N6_!Ys", "type": "رسمي"},
+      {"code": "481467362", "name": "محسن حلمي مرزوق محمد", "user": "481467362", "pass": "2e!!tU8k", "type": "رسمي"},
+      {"code": "471164248", "name": "محمد ابراهيم سمير احمد محمود", "user": "471164248", "pass": "PEZUg?4u", "type": "رسمي"},
+      {"code": "467749018", "name": "محمد احمد حسن محمد", "user": "467749018", "pass": "5754Bn_L", "type": "رسمي"},
+      {"code": "471869302", "name": "محمد احمد رجب عبده محمد", "user": "471869302", "pass": "ZW4B!ye7", "type": "رسمي"},
+      {"code": "463248459", "name": "محمد احمد رشوان متولى", "user": "463248459", "pass": "s?Yy9?MY", "type": "رسمي"},
+      {"code": "471410812", "name": "محمد احمد رمضان شعبان", "user": "471410812", "pass": "Uz_Zcht7", "type": "رسمي"},
+      {"code": "471581253", "name": "محمد احمد رمضان يونس", "user": "471581253", "pass": "!f!X3ReX", "type": "رسمي"},
+      {"code": "471011676", "name": "محمد احمد عمر بيومى ضيف", "user": "471011676", "pass": "tw2!aHax", "type": "رسمي"},
+      {"code": "469456357", "name": "محمد احمد مجدى فتحى", "user": "469456357", "pass": "Xd8_RT!q", "type": "رسمي"},
+      {"code": "481239847", "name": "محمد احمد محمد سيد", "user": "481239847", "pass": "Y69kSP!v", "type": "رسمي"},
+      {"code": "476721397", "name": "محمد احمد محمد على السيد", "user": "476721397", "pass": "_gy4iQh4", "type": "رسمي"},
+      {"code": "470835259", "name": "محمد احمد نبيه عبدالوهاب مهران", "user": "470835259", "pass": "!np9uAU_", "type": "رسمي"},
+      {"code": "468802664", "name": "محمد احمد نصرالله محمد", "user": "468802664", "pass": "!Tx!tew9", "type": "رسمي"},
+      {"code": "470841121", "name": "محمد اسامه محمود حنفى مصطفى", "user": "470841121", "pass": "rF5EW_Vx", "type": "رسمي"},
+      {"code": "476381376", "name": "محمد ايمن رزق عبدالعال", "user": "476381376", "pass": "8_hhSC85", "type": "رسمي"},
+      {"code": "468919798", "name": "محمد ايهاب محمد مراد", "user": "468919798", "pass": "xa!YR9r5", "type": "رسمي"},
+      {"code": "468101899", "name": "محمد ايهاب وفيق وقفى", "user": "468101899", "pass": "v6RJb!bi", "type": "رسمي"},
+      {"code": "463255479", "name": "محمد ايوب السيد عبد الرحيم", "user": "463255479", "pass": "eenB!9dV", "type": "رسمي"},
+      {"code": "463691122", "name": "محمد حسين محمد اللافى خطاب", "user": "463691122", "pass": "DX!kF33J", "type": "رسمي"},
+      {"code": "477120442", "name": "محمد حمدى حسين على حسن", "user": "477120442", "pass": "8Q_s6BnZ", "type": "رسمي"},
+      {"code": "468795741", "name": "محمد خالد عبدالعزيز توفيق", "user": "468795741", "pass": "kcmY3U_q", "type": "رسمي"},
+      {"code": "463830812", "name": "محمد خالد فرج على عبدالمجيد", "user": "463830812", "pass": "yQ_AM88L", "type": "رسمي"},
+      {"code": "472511233", "name": "محمد خليل عطيه سليمان خليل", "user": "472511233", "pass": "3RtD4Y_S", "type": "رسمي"},
+      {"code": "466117861", "name": "محمد رافد محمد رفعت عنتر عثمان", "user": "466117861", "pass": "9x7xDZ2c4", "type": "رسمي"},
+      {"code": "475961124", "name": "محمد رمضان محمد ابو سريع الشحات", "user": "475961124", "pass": "3E_VE5ye", "type": "رسمي"},
+      {"code": "467803128", "name": "محمد زغلول سنوسى شعبان ابو بكر", "user": "467803128", "pass": "WFn9sgb?", "type": "رسمي"},
+      {"code": "476685872", "name": "محمد سامي نصر محمد", "user": "476685872", "pass": "CmEuk_7q", "type": "رسمي"},
+      {"code": "471069029", "name": "محمد سعيد شحات رجب عبد الصمد", "user": "471069029", "pass": "_B9WJxc!", "type": "رسمي"},
+      {"code": "470992043", "name": "محمد سليمان فتحى سليمان", "user": "470992043", "pass": "6kD!_V_G", "type": "رسمي"},
+      {"code": "473368954", "name": "محمد سمير محمد فرجاني", "user": "473368954", "pass": "7B7y3?D5", "type": "رسمي"},
+      {"code": "487139842", "name": "محمد سيد محمد سلامه", "user": "487139842", "pass": "!bjjbC39", "type": "رسمي"},
+      {"code": "475760500", "name": "محمد صابر خليفه عبد العظيم", "user": "475760500", "pass": "eA!5skG_", "type": "رسمي"},
+      {"code": "471342151", "name": "محمد صابر محمد حسن", "user": "471342151", "pass": "43y?RjNx", "type": "رسمي"},
+      {"code": "472899009", "name": "محمد طه محمد السيد محمد", "user": "472899009", "pass": "y!RdpT6!", "type": "رسمي"},
+      {"code": "468826856", "name": "محمد عادل اسماعيل عباس", "user": "468826856", "pass": "x_dB2nQ5", "type": "رسمي"},
+      {"code": "472018250", "name": "محمد عبد المنعم حمزة ابوبكر", "user": "472018250", "pass": "Ev3Y2?Kj", "type": "رسمي"},
+      {"code": "468102058", "name": "محمد عبدالحكيم محمد محمد", "user": "468102058", "pass": "CyTb?6Kt", "type": "رسمي"},
+      {"code": "464524880", "name": "محمد عزت محمد حمزة", "user": "464524880", "pass": "pM7Wb8A_", "type": "رسمي"},
+      {"code": "471674778", "name": "محمد عصام محمد عبدالرحمن", "user": "471674778", "pass": "xBV?9Qef", "type": "رسمي"},
+      {"code": "471068952", "name": "محمد عفيفى سيد احمد محمد سيد احمد عفيفى", "user": "471068952", "pass": "GZR9!y!b", "type": "رسمي"},
+      {"code": "473120494", "name": "محمد علاء عبد الحميد عبد الحليم", "user": "473120494", "pass": "GeZ?wP8c", "type": "رسمي"},
+      {"code": "474301132", "name": "محمد على فتحى عبدالكريم", "user": "474301132", "pass": "b6jK_GCa", "type": "رسمي"},
+      {"code": "470811999", "name": "محمد على منصور عبد الغفور منصور", "user": "470811999", "pass": "pXX!?yB5", "type": "رسمي"},
+      {"code": "471582746", "name": "محمد علي صلاح شعبان", "user": "471582746", "pass": "6XV!4R?B", "type": "رسمي"},
+      {"code": "472531040", "name": "محمد عمرو عبدالفتاح ابراهيم", "user": "472531040", "pass": "ZuBaC_25", "type": "رسمي"},
+      {"code": "471582764", "name": "محمد عمرو علي محمد", "user": "471582764", "pass": "tk2Hz?8F", "type": "رسمي"},
+      {"code": "470823121", "name": "محمد عويس عبد النبي احمد", "user": "470823121", "pass": "yPCP042!", "type": "رسمي"},
+      {"code": "471940426", "name": "محمد فاروق محمد متولى", "user": "471940426", "pass": "bHx!QdW5", "type": "رسمي"},
+      {"code": "473125630", "name": "محمد كامل احمد عثمان على", "user": "473125630", "pass": "w4R_6xHK", "type": "رسمي"},
+      {"code": "473348429", "name": "محمد محروس حامد عبدالجيد", "user": "473348429", "pass": "!tSTdCiG", "type": "رسمي"},
+      {"code": "473369551", "name": "محمد محمد أنور محمد", "user": "473369551", "pass": "S73e5tf!", "type": "رسمي"},
+      {"code": "471351918", "name": "محمد محمد عبد الفتاح محمد", "user": "471351918", "pass": "Fau??m8W", "type": "رسمي"},
+      {"code": "472510300", "name": "محمد محمود خالد مراد", "user": "472510300", "pass": "ufZzms_3", "type": "رسمي"},
+      {"code": "464525015", "name": "محمد محمود عبد الغفار عطا محمد", "user": "464525015", "pass": "U!XEse99", "type": "رسمي"},
+      {"code": "471044914", "name": "محمد محمود عبدالحميد رفاعي", "user": "471044914", "pass": "Cn3!_ez2", "type": "رسمي"},
+      {"code": "471836773", "name": "محمد محمود على زرق", "user": "471836773", "pass": "7rTXVe!F", "type": "رسمي"},
+      {"code": "472511315", "name": "محمد محمود عيد الله موسى", "user": "472511315", "pass": "8E?v7AcD", "type": "رسمي"},
+      {"code": "471924915", "name": "محمد مسعد عبد الله عمران", "user": "471924915", "pass": "M4Z8e_WG", "type": "رسمي"},
+      {"code": "466478369", "name": "محمد مصطفى شحاته محمود مصطفى", "user": "466478369", "pass": "MJ75H!9t", "type": "رسمي"},
+      {"code": "472510172", "name": "محمد مصطفى محمد عبدالفتاح", "user": "472510172", "pass": "_CVdaF9K", "type": "رسمي"},
+      {"code": "472511408", "name": "محمد مصطفى نمر كامل", "user": "472511408", "pass": "G9R?AgXB", "type": "رسمي"},
+      {"code": "468919598", "name": "محمد مصطفى أحمد محمد", "user": "468919598", "pass": "2_D9HXDb", "type": "رسمي"},
+      {"code": "471725206", "name": "محمد مهاب جوده احمد", "user": "471725206", "pass": "?u8tFTKq", "type": "رسمي"},
+      {"code": "471305582", "name": "محمد نور الدين صلاح محمد عبد الباسط", "user": "471305582", "pass": "8B8!5RPn", "type": "رسمي"},
+      {"code": "471206650", "name": "محمد هانئ محمد بكر محمد الشحات", "user": "471206650", "pass": "c!3Vf7Yk", "type": "رسمي"},
+      {"code": "472076199", "name": "محمد هيثم على محمود", "user": "472076199", "pass": "HBF8D?cP", "type": "رسمي"},
+      {"code": "463251904", "name": "محمد هيثم محمد ابراهيم", "user": "463251904", "pass": "V_jiBxt2", "type": "رسمي"},
+      {"code": "468827149", "name": "محمد ياسر عبدالحليم حسن", "user": "468827149", "pass": "C!4ayClk", "type": "رسمي"},
+      {"code": "469470391", "name": "محمود ابراهيم فتحى ابراهيم", "user": "469470391", "pass": "35_ymUwQ", "type": "رسمي"},
+      {"code": "471293640", "name": "محمود السيد عبدالسميع عبدالونيس", "user": "471293640", "pass": "eMc24w_x", "type": "رسمي"},
+      {"code": "472899883", "name": "محمود حسين سمير حسين", "user": "472899883", "pass": "!p93hUKj", "type": "رسمي"},
+      {"code": "473242222", "name": "محمود رفاعى محمود اسماعيل محمد", "user": "473242222", "pass": "bq!c!eJ2", "type": "رسمي"},
+      {"code": "469606118", "name": "محمود سمير عويان عبد الصمد", "user": "469606118", "pass": "S!X6Buiv", "type": "رسمي"},
+      {"code": "471149249", "name": "محمود صفوت محمود محمد عفيفى", "user": "471149249", "pass": "5rLaYm?d", "type": "رسمي"},
+      {"code": "468808739", "name": "محمود عصام سيد خليفه", "user": "468808739", "pass": "!YThyX5!8", "type": "رسمي"},
+      {"code": "463650799", "name": "محمود فرحات فرج حضيري", "user": "463650799", "pass": "aBXk9x!9", "type": "رسمي"},
+      {"code": "473224678", "name": "محمود فرغلى ثابت عبد الرحمن احمد", "user": "473224678", "pass": "_hpfca9S", "type": "رسمي"},
+      {"code": "487120451", "name": "محمود محمد على محمد", "user": "487120451", "pass": "47PyK8_2", "type": "رسمي"},
+      {"code": "463259273", "name": "محمود نبيل محمد عبد الحميد أبو عزيزه", "user": "463259273", "pass": "wXRKP3!L", "type": "رسمي"},
+      {"code": "468650598", "name": "مروان احمد كرم عبدالغنى", "user": "468650598", "pass": "_qN59uGj", "type": "رسمي"},
+      {"code": "468801923", "name": "مروان شعبان محسن سيد", "user": "468801923", "pass": "W!Hen5M!", "type": "رسمي"},
+      {"code": "472911645", "name": "مهاب احمد عمر على عبد الحافظ", "user": "472911645", "pass": "7X2V_nfz", "type": "رسمي"},
+      {"code": "471164598", "name": "مهاب هشام عبد القادر عبد الحميد خليل", "user": "471164598", "pass": "R3Vh?!9g", "type": "رسمي"},
+      {"code": "463255861", "name": "مهند احمد محمد احمد محمد", "user": "463255861", "pass": "X6U!KuGs", "type": "رسمي"},
+      {"code": "474296683", "name": "مهند خالد محمد محمود فرغلى", "user": "474296683", "pass": "GHVx4yE!", "type": "رسمي"},
+      {"code": "468800813", "name": "مهند محمد عبدالحفيظ محمد", "user": "468800813", "pass": "BfB_56b4", "type": "رسمي"},
+      {"code": "464459474", "name": "مهند محمود حسين زعفان", "user": "464459474", "pass": "t_Z4a!7N", "type": "رسمي"},
+      {"code": "468102486", "name": "موسى خالد محمد حامد", "user": "468102486", "pass": "P68px!AK", "type": "رسمي"},
+      {"code": "469950072", "name": "مؤمن علي شحات يوسف حامد", "user": "469950072", "pass": "p3_78!3D", "type": "رسمي"},
+      {"code": "471777610", "name": "ناجى عبد الجواد محمد عبد العال", "user": "471777610", "pass": "7ax8K7!q", "type": "رسمي"},
+      {"code": "476685943", "name": "نصر محمد نصر محمد عبد الحافظ", "user": "476685943", "pass": "Cp3uGcW!", "type": "رسمي"},
+      {"code": "485830385", "name": "نور محمد يوسف عبد الله محمد", "user": "485830385", "pass": "Yrw668!!", "type": "رسمي"},
+      {"code": "463085197", "name": "نورالدين سليمان محمد نورالدين", "user": "463085197", "pass": "x3d88A!X", "type": "رسمي"},
+      {"code": "471164190", "name": "وضاح عماد الدين سعد احمد سليمان العادلى", "user": "471164190", "pass": "!dc5mmGX", "type": "رسمي"},
+      {"code": "471919021", "name": "وليد محمد عبد الرؤف محمد", "user": "471919021", "pass": "uwT2EV!t", "type": "رسمي"},
+      {"code": "486584464", "name": "ياسر محمد مصطفى محمد حجازى", "user": "486584464", "pass": "Vn7g5N_r", "type": "رسمي"},
+      {"code": "471154075", "name": "ياسين احمد سيد عبدالستار محمد", "user": "471154075", "pass": "5Pht9Cc!", "type": "رسمي"},
+      {"code": "468809028", "name": "ياسين ايمن سعيد عدلى", "user": "468809028", "pass": "5CpQ_d59", "type": "رسمي"},
+      {"code": "475760507", "name": "ياسين ايمن يحى سليمان", "user": "475760507", "pass": "5Yd!2mXg", "type": "رسمي"},
+      {"code": "476618706", "name": "ياسين عادل علي عبد السلام", "user": "476618706", "pass": "!nsqUF2?", "type": "رسمي"},
+      {"code": "472899942", "name": "ياسين عادل محمد احمد", "user": "472899942", "pass": "37VtFLP_", "type": "رسمي"},
+      {"code": "486344434", "name": "ياسين عبد الرحمن محمد سيد", "user": "486344434", "pass": "Be7e872k", "type": "رسمي"},
+      {"code": "468827689", "name": "ياسين على محمود حسن", "user": "468827689", "pass": "N_P!xX3gP", "type": "رسمي"},
+      {"code": "497867870", "name": "ياسين عماد الدين غريب سيد احمد", "user": "497867870", "pass": "K?Pe!9qg", "type": "رسمي"},
+      {"code": "468809157", "name": "ياسين عمرو على على", "user": "468809157", "pass": "6GwQNUlF", "type": "رسمي"},
+      {"code": "471165450", "name": "ياسين محمد الواسطى محمد حسن", "user": "471165450", "pass": "!j6t!xXN", "type": "رسمي"},
+      {"code": "471919232", "name": "ياسين محمد حسين ابراهيم", "user": "471919232", "pass": "c!N6_kuB", "type": "رسمي"},
+      {"code": "471885543", "name": "ياسين محمد زكى محمد", "user": "471885543", "pass": "fn!2Z9BM", "type": "رسمي"},
+      {"code": "471132265", "name": "ياسين محمد سعيد صادق", "user": "471132265", "pass": "8UuwfB_x?", "type": "رسمي"},
+      {"code": "473457501", "name": "ياسين محمد عبدالرحيم محمد", "user": "473457501", "pass": "pd54T_Bf", "type": "رسمي"},
+      {"code": "473189334", "name": "ياسين محمد مصطفى النحاس", "user": "473189334", "pass": "CuY8_wSu", "type": "رسمي"},
+      {"code": "467751536", "name": "ياسين مدحت عاطف محمود احمد", "user": "467751536", "pass": "Qt?zyCP9", "type": "رسمي"},
+      {"code": "468800559", "name": "ياسين هانى حسن عبدالعاطى", "user": "468800559", "pass": "t!vkcS94", "type": "رسمي"},
+      {"code": "472900000", "name": "ياسين وائل احمد حلمي", "user": "472900000", "pass": "s_dFdx8y", "type": "رسمي"},
+      {"code": "468102704", "name": "ياسين ياسر مهدي عبدالهادى", "user": "468102704", "pass": "Ca?TMmk3", "type": "رسمي"},
+      {"code": "472674002", "name": "يحيى السيد حميد عبد الحفيظ محمود", "user": "472674002", "pass": "23KVKlgM", "type": "رسمي"},
+      {"code": "469239927", "name": "يحيى محمد محمود خطاب عبد الله", "user": "469239927", "pass": "SmUVClx9", "type": "رسمي"},
+      {"code": "468809596", "name": "يحيى وليد ممدوح فاضل", "user": "468809596", "pass": "X8!Er8WD", "type": "رسمي"},
+      {"code": "470924181", "name": "يوسف ابراهيم احمد محمد عوض", "user": "470924181", "pass": "X7?sD2Dc", "type": "رسمي"},
+      {"code": "482056700", "name": "يوسف ابراهيم سلامه محمود", "user": "482056700", "pass": "q75cpV!w", "type": "رسمي"},
+      {"code": "464896443", "name": "يوسف احمد خليفه عبد الخالق خليفه", "user": "464896443", "pass": "8N7c?!Wu", "type": "رسمي"},
+      {"code": "467850515", "name": "يوسف اسامه على جمعه", "user": "467850515", "pass": "A7?Ve?CD", "type": "رسمي"},
+      {"code": "468809821", "name": "يوسف اسلام صفاءالدين عبدالحليم", "user": "468809821", "pass": "qB_HC2f7", "type": "رسمي"},
+      {"code": "487222012", "name": "يوسف السيد فتح محمد", "user": "487222012", "pass": "mZmH57_C", "type": "رسمي"},
+      {"code": "471847610", "name": "يوسف ايمن رمضان ابراهيم", "user": "471847610", "pass": "kef_d5vR", "type": "رسمي"},
+      {"code": "476820559", "name": "يوسف ايمن يوسف عبدالتواب", "user": "476820559", "pass": "JfMuGV_7", "type": "رسمي"},
+      {"code": "468809482", "name": "يوسف جمال سعد عبدالمنعم", "user": "468809482", "pass": "cZt_b9xt", "type": "رسمي"},
+      {"code": "464023636", "name": "يوسف حمدى زكى زكريا", "user": "464023636", "pass": "muVP!??9", "type": "رسمي"},
+      {"code": "471773159", "name": "يوسف خالد محمد محمد عيد", "user": "471773159", "pass": "zMpG4!rs", "type": "رسمي"},
+      {"code": "470787781", "name": "يوسف رضا فرحات منوفي عبد البارى", "user": "470787781", "pass": "!TVZUUr4", "type": "رسمي"},
+      {"code": "473368368", "name": "يوسف رمزي عبدالنبي عاشور", "user": "473368368", "pass": "9hAK?Vdj", "type": "رسمي"},
+      {"code": "470833116", "name": "يوسف رمضان جلال يس عبدالله", "user": "470833116", "pass": "RE2gW5?s", "type": "رسمي"},
+      {"code": "470738622", "name": "يوسف سامح الشحات محمد", "user": "470738622", "pass": "DFH!R5Dy", "type": "رسمي"},
+      {"code": "473102408", "name": "يوسف سيد عبد الغني محمود", "user": "473102408", "pass": "QK4!pFj_", "type": "رسمي"},
+      {"code": "482957901", "name": "يوسف شعبان ربيع توفيق", "user": "482957901", "pass": "Tm_t9ePX", "type": "رسمي"},
+      {"code": "472900235", "name": "يوسف طاهر عبد الحكم عبد الفتاح اسماعيل", "user": "472900235", "pass": "qYB?hE92", "type": "رسمي"},
+      {"code": "473101652", "name": "يوسف عباده رمضان امين", "user": "473101652", "pass": "Vbz5!dbK", "type": "رسمي"},
+      {"code": "498023936", "name": "يوسف عبدالرحيم عبدالسميع محمد", "user": "498023936", "pass": "XGZH!m9c", "type": "رسمي"},
+      {"code": "472511521", "name": "يوسف على جمال على ابو الحمد", "user": "472511521", "pass": "R6wAms_U", "type": "رسمي"},
+      {"code": "498386145", "name": "يوسف على مسعود على", "user": "498386145", "pass": "p45VEd_C", "type": "رسمي"},
+      {"code": "471076613", "name": "يوسف عماد حمزة شعبان حميده", "user": "471076613", "pass": "vcWQWA!7", "type": "رسمي"},
+      {"code": "472900327", "name": "يوسف عماد رمزي شفيق ميخائيل", "user": "472900327", "pass": "P5J6Tp!E", "type": "رسمي"},
+      {"code": "463080780", "name": "يوسف عمرو صابر عبدالسلام على", "user": "463080780", "pass": "h_hEAbk2", "type": "رسمي"},
+      {"code": "463561777", "name": "يوسف عمرو عبداللطيف هلال", "user": "463561777", "pass": "MgR9b?hK", "type": "رسمي"},
+      {"code": "468794548", "name": "يوسف عمرو عبدالمقصود عبدالغفار", "user": "468794548", "pass": "TqX!a3un", "type": "رسمي"},
+      {"code": "471411178", "name": "يوسف عونى عبدالستار احمد", "user": "471411178", "pass": "S?!pf!U2", "type": "رسمي"},
+      {"code": "471163471", "name": "يوسف فؤاد محمد فؤاد", "user": "471163471", "pass": "6Ma?RXTJ", "type": "رسمي"},
+      {"code": "505515701", "name": "يوسف لطفي فاروق علي", "user": "505515701", "pass": "zV?!yixm", "type": "رسمي"},
+      {"code": "463861727", "name": "يوسف محمد ابو العلا محمد على", "user": "463861727", "pass": "P_sH9vFK", "type": "رسمي"},
+      {"code": "471919567", "name": "يوسف محمد احمد مجاور", "user": "471919567", "pass": "i_?NMg9s", "type": "رسمي"},
+      {"code": "476686077", "name": "يوسف محمد شكري علي", "user": "476686077", "pass": "_J_bZ3WTq", "type": "رسمي"},
+      {"code": "471351851", "name": "يوسف محمد صابر محمد", "user": "471351851", "pass": "EYe?sw?2", "type": "رسمي"},
+      {"code": "470812073", "name": "يوسف محمد صلاح عبد الفتاح سنوسى", "user": "470812073", "pass": "p76jW2K6", "type": "رسمي"},
+      {"code": "476686123", "name": "يوسف محمد غريب عبد المنعم", "user": "476686123", "pass": "8FdTF!_h", "type": "رسمي"},
+      {"code": "467128676", "name": "يوسف محمد قرني عبد الغني عبد الكريم", "user": "467128676", "pass": "e8A?YsEn", "type": "رسمي"},
+      {"code": "473005065", "name": "يوسف محمود هاشم عباس عبدالمولى", "user": "473005065", "pass": "z8HGq?Uf", "type": "رسمي"},
+      {"code": "474301158", "name": "يوسف وائل احمد احمد", "user": "474301158", "pass": "!Xj4eeh2", "type": "رسمي"},
+      {"code": "471416754", "name": "ابانوب عصام ابراهيم حنا يوسف", "user": "471416754", "pass": "?cRdBAZ5", "type": "خدمات"},
+      {"code": "463884010", "name": "ابانوب يعقوب وليم ثابت", "user": "463884010", "pass": "2c_WD2Z3", "type": "خدمات"},
+      {"code": "469100204", "name": "ابراهيم ابوزيد ابراهيم ابوزيد", "user": "469100204", "pass": "gA7tP!us", "type": "خدمات"},
+      {"code": "468503580", "name": "ابراهيم سيد ابراهيم السيد", "user": "468503580", "pass": "a!G5fa7w", "type": "خدمات"},
+      {"code": "469565207", "name": "ابراهيم عفيفى محمود خلف الله", "user": "469565207", "pass": "m?Hew9gB", "type": "خدمات"},
+      {"code": "481577081", "name": "ابراهيم فتحي عبدالفتاح اسماعيل", "user": "481577081", "pass": "GGG?rZm6", "type": "خدمات"},
+      {"code": "471152909", "name": "ابراهيم محمد ابراهيم محمد زناتى", "user": "471152909", "pass": "3h!MLyA9", "type": "خدمات"},
+      {"code": "473359685", "name": "ابراهيم محمد ابراهيم محمود", "user": "473359685", "pass": "195fhCev", "type": "خدمات"},
+      {"code": "473055445", "name": "ابراهيم مصطفى ابراهيم مصطفى", "user": "473055445", "pass": "vVXj35!v", "type": "خدمات"},
+      {"code": "471245056", "name": "ابراهيم هاني ابراهيم شاكر", "user": "471245056", "pass": "Bnz_DNm9", "type": "خدمات"},
+      {"code": "473069011", "name": "ابى احمد عبد العزيز عبد الحى", "user": "473069011", "pass": "7wgQ_dbQ", "type": "خدمات"},
+      {"code": "505909945", "name": "احمد نجم الدين الهادي محمد", "user": "505909945", "pass": "2?nZdrTH", "type": "خدمات"},
+      {"code": "473598191", "name": "احمد اسامه احمد عبدالفتاح", "user": "473598191", "pass": "d6xfN8?a", "type": "خدمات"},
+      {"code": "471026293", "name": "احمد السيد محمد عطية", "user": "471026293", "pass": "kp?6N_33", "type": "خدمات"},
+      {"code": "471382318", "name": "احمد امين سمير امين", "user": "471382318", "pass": "rU_6TNbV", "type": "خدمات"},
+      {"code": "465271026", "name": "احمد جمعة محمد اسماعيل", "user": "465271026", "pass": "FUp6_yNV", "type": "خدمات"},
+      {"code": "472152805", "name": "احمد جمعه احمد جنيدى عبد الجواد", "user": "472152805", "pass": "VWHy_Bf6", "type": "خدمات"},
+      {"code": "463231254", "name": "احمد حسن احمد محمد", "user": "463231254", "pass": "t?4KWTkY", "type": "خدمات"},
+      {"code": "483009717", "name": "احمد حسن احمد محمود", "user": "483009717", "pass": "a2?NFaCk", "type": "خدمات"},
+      {"code": "472152891", "name": "احمد حسن محمد فتحى", "user": "472152891", "pass": "hvfH!?5P", "type": "خدمات"},
+      {"code": "470818436", "name": "احمد حسن محمود حسن محمد حسان", "user": "470818436", "pass": "X2!Re5eJ", "type": "خدمات"},
+      {"code": "498505365", "name": "احمد حماده عيسي السيد عطوان بدوي", "user": "498505365", "pass": "6spWVO4?", "type": "خدمات"},
+      {"code": "471670871", "name": "احمد خالد ابراهيم زكى", "user": "471670871", "pass": "7KYzt?LB", "type": "خدمات"},
+      {"code": "489298782", "name": "احمد خالد محمد هريدي", "user": "489298782", "pass": "Qh965/mt", "type": "خدمات"},
+      {"code": "483011078", "name": "احمد رامى احمد ابراهيم", "user": "483011078", "pass": "38?xjyBZ", "type": "خدمات"},
+      {"code": "471072173", "name": "احمد رجب السيد عبود", "user": "471072173", "pass": "UUHm_j4p", "type": "خدمات"},
+      {"code": "471545241", "name": "احمد رجب مفتاح بيومى عطية", "user": "471545241", "pass": "MRbyU?2w", "type": "خدمات"},
+      {"code": "463574497", "name": "احمد رضا فتح الله محمد", "user": "463574497", "pass": "dsgcGA!3", "type": "خدمات"},
+      {"code": "471713646", "name": "احمد سليمان محمد محمود", "user": "471713646", "pass": "_4KhHxH_", "type": "خدمات"},
+      {"code": "473167185", "name": "احمد سليمان محمود احمد", "user": "473167185", "pass": "T_Ofv4Mj", "type": "خدمات"},
+      {"code": "471713855", "name": "احمد سيد ابو السعود محمد", "user": "471713855", "pass": "gPh_4P4B", "type": "خدمات"},
+      {"code": "477362282", "name": "احمد سيد عبدالنبى سيد", "user": "477362282", "pass": "!itB3n5i", "type": "خدمات"},
+      {"code": "481428947", "name": "احمد صبري عمر عمر", "user": "481428947", "pass": "8xK729h!", "type": "خدمات"},
+      {"code": "471000964", "name": "احمد طارق عبدالله جمعه", "user": "471000964", "pass": "_WgN9Ws?", "type": "خدمات"},
+      {"code": "471153693", "name": "احمد عبدالرحمن عمر احمد", "user": "471153693", "pass": "b?AY4iY2", "type": "خدمات"},
+      {"code": "471216472", "name": "احمد عصام حسن رشوان حسن خضر", "user": "471216472", "pass": "pAF??3Wv", "type": "خدمات"},
+      {"code": "467384189", "name": "احمد على محمد عثمان مرسى", "user": "467384189", "pass": "7XDY?e9x", "type": "خدمات"},
+      {"code": "473882169", "name": "احمد عماد سيد احمد", "user": "473882169", "pass": "8yjHy?w9", "type": "خدمات"},
+      {"code": "472307926", "name": "احمد عماد وحيد احمد مصطفى", "user": "472307926", "pass": "7A7paej!", "type": "خدمات"},
+      {"code": "471860680", "name": "احمد عمرو عادل عبدالشافى", "user": "471860680", "pass": "G6DDt_Rk", "type": "خدمات"},
+      {"code": "472073903", "name": "احمد عموره مخرى فريزرسيف", "user": "472073903", "pass": "3_648aPA", "type": "خدمات"},
+      {"code": "471674713", "name": "احمد ماجد فؤاد محمد", "user": "471674713", "pass": "9pH9t?FU", "type": "خدمات"},
+      {"code": "463551236", "name": "احمد مجدى صابر احمد اسماعيل", "user": "463551236", "pass": "uUa5p3j_", "type": "خدمات"},
+      {"code": "471245241", "name": "احمد محمد احمد حسنين", "user": "471245241", "pass": "wW2g_6Yt", "type": "خدمات"},
+      {"code": "473639217", "name": "احمد محمد صلاح الدين محمد على الكفاياى", "user": "473639217", "pass": "MQj6_gNq", "type": "خدمات"},
+      {"code": "478260819", "name": "احمد محمد عبد العزيز محمد احمد ابو الرمش", "user": "478260819", "pass": "2kGj?cTx", "type": "خدمات"},
+      {"code": "463550944", "name": "أحمد محمد عبدالعاطف توفيق", "user": "463550944", "pass": "fJgOP7_4", "type": "خدمات"},
+      {"code": "473598058", "name": "احمد محمد عبدالفتاح محمد", "user": "473598058", "pass": "u_9RzVUv", "type": "خدمات"},
+      {"code": "463577877", "name": "احمد محمد فوزى ابراهيم سلطان", "user": "463577877", "pass": "67?PFcHj", "type": "خدمات"},
+      {"code": "472856607", "name": "احمد محمد كمال محمود", "user": "472856607", "pass": "2AuGfls?", "type": "خدمات"},
+      {"code": "474301026", "name": "احمد محمد محمد المهدى محمد متولى", "user": "474301026", "pass": "Cbm_lis7", "type": "خدمات"},
+      {"code": "470936605", "name": "أحمد محمد محمد حسن", "user": "470936605", "pass": "uQ9_z_Nc", "type": "خدمات"},
+      {"code": "471342873", "name": "احمد محمود احمد محمد", "user": "471342873", "pass": "hG6Frdn_", "type": "خدمات"},
+      {"code": "463581555", "name": "احمد محمود احمد محمد على سعد", "user": "463581555", "pass": "ALHv9Eb?", "type": "خدمات"},
+      {"code": "471386753", "name": "احمد محمود رفعت امين", "user": "471386753", "pass": "2QkWAYS_", "type": "خدمات"},
+      {"code": "471078304", "name": "احمد محمود سعد الدين عبد المنعم على", "user": "471078304", "pass": "X7f_zDrW", "type": "خدمات"},
+      {"code": "480773001", "name": "احمد محمود علام محمد طه", "user": "480773001", "pass": "Cmu3?!WK", "type": "خدمات"},
+      {"code": "463518002", "name": "احمد محمود محمد نصار محمد", "user": "463518002", "pass": "bdxDV2i6", "type": "خدمات"},
+      {"code": "472203285", "name": "احمد ناصر احمد محمد", "user": "472203285", "pass": "RTEDq?r2", "type": "خدمات"},
+      {"code": "470981073", "name": "احمد هانى سامى عبدالله", "user": "470981073", "pass": "r?3L4NfB", "type": "خدمات"},
+      {"code": "471084802", "name": "احمد وائل امشير خليفه ابراهيم", "user": "471084802", "pass": "O3!NHp_d", "type": "خدمات"},
+      {"code": "471387174", "name": "ادم احمد عصام فرج", "user": "471387174", "pass": "5_794SeY", "type": "خدمات"},
+      {"code": "487135100", "name": "ادم احمد عيد ابراهيم عطيه", "user": "487135100", "pass": "sdXK?4_S", "type": "خدمات"},
+      {"code": "471297241", "name": "ادم احمد محمد مختار عبد المعبود", "user": "471297241", "pass": "YcIV5wQA", "type": "خدمات"},
+      {"code": "483160557", "name": "ادم صلاح الدين دسوقي علي", "user": "483160557", "pass": "QUwA_sa5", "type": "خدمات"},
+      {"code": "468639853", "name": "ادم عمر صابر فاضل", "user": "468639853", "pass": "2bh!RLTP", "type": "خدمات"},
+      {"code": "470816611", "name": "ادم عمرو ثابت عوده عبد المطلب", "user": "470816611", "pass": "KQqpX9_m", "type": "خدمات"},
+      {"code": "477913665", "name": "ادم عمرو فهمى محمد عبدالقادر", "user": "477913665", "pass": "7C9ELvV!", "type": "خدمات"},
+      {"code": "468310287", "name": "ادم محمد صلاح الدين محمد حسين", "user": "468310287", "pass": "8vdNMcC_", "type": "خدمات"},
+      {"code": "475546703", "name": "ادم محمد صلاح توفيق", "user": "475546703", "pass": "NvuWX_v5", "type": "خدمات"},
+      {"code": "463524858", "name": "ادهم احمد شعبان عبد العاطي", "user": "463524858", "pass": "3EFtc!kb", "type": "خدمات"},
+      {"code": "470841124", "name": "ادهم جواد مصباح اسماعيل شهوان", "user": "470841124", "pass": "M_5p7WdP", "type": "خدمات"},
+      {"code": "471077944", "name": "ادهم ربيع عصام ابراهيم محمد", "user": "471077944", "pass": "PDs89jX_", "type": "خدمات"},
+      {"code": "470764094", "name": "ادهم سعيد رؤوف انور", "user": "470764094", "pass": "!8!qkAw!", "type": "خدمات"},
+      {"code": "471228115", "name": "ادهم سمير محمد حسين", "user": "471228115", "pass": "!a2R?hFY", "type": "خدمات"},
+      {"code": "470690051", "name": "ادهم سيد عبد الصبور سيد", "user": "470690051", "pass": "EQXk6?xo", "type": "خدمات"},
+      {"code": "478186317", "name": "ادهم عبد الرافع محمد عبد الهادى", "user": "478186317", "pass": "pMRc76j_", "type": "خدمات"},
+      {"code": "470993176", "name": "ادهم فتحى مبروك عبد الله", "user": "470993176", "pass": "kj9_W97D", "type": "خدمات"},
+      {"code": "471009996", "name": "ادهم محمد سيد محمد", "user": "471009996", "pass": "AYh7fF9!", "type": "خدمات"},
+      {"code": "470951252", "name": "ادهم وليد سعيد محمد", "user": "470951252", "pass": "Hz4e7?8J", "type": "خدمات"},
+      {"code": "480645055", "name": "أدهم ياسر حمدان إبراهيم", "user": "480645055", "pass": "vx_T!V59", "type": "خدمات"},
+      {"code": "471307269", "name": "اسلام ابراهيم السيد محمد", "user": "471307269", "pass": "AxJV4_JW", "type": "خدمات"},
+      {"code": "471215874", "name": "اسلام رجب معوض محمد", "user": "471215874", "pass": "67oU!9M_", "type": "خدمات"},
+      {"code": "486141515", "name": "اسلام وليد عبد السلام السيد", "user": "486141515", "pass": "jg?Y8qMd", "type": "خدمات"},
+      {"code": "470301831", "name": "المهدى سيد محمد احمد", "user": "470301831", "pass": "E8xw?PAe", "type": "خدمات"},
+      {"code": "470945080", "name": "امام عادل امام سيد", "user": "470945080", "pass": "WgUwb5?M", "type": "خدمات"},
+      {"code": "471730390", "name": "امجد صموئيل شاكر شفيق", "user": "471730390", "pass": "D?ZX5ycD", "type": "خدمات"},
+      {"code": "471614620", "name": "امين محمد امين حنفى", "user": "471614620", "pass": "o?5pvcYY", "type": "خدمات"},
+      {"code": "470705557", "name": "انس احمد سيد حسن", "user": "470705557", "pass": "ph_sVE6E", "type": "خدمات"},
+      {"code": "472696558", "name": "انس عبدالنبى حسن محمد رجب", "user": "472696558", "pass": "Nq_8_Pd2", "type": "خدمات"},
+      {"code": "471836527", "name": "انس على محمد على", "user": "471836527", "pass": "GpyYR_6s", "type": "خدمات"},
+      {"code": "473239468", "name": "انس عمرو حلمى طه احمد حمدون", "user": "473239468", "pass": "uukTLx5_", "type": "خدمات"},
+      {"code": "471674934", "name": "اياد ربيع محمد فرحات", "user": "471674934", "pass": "9eTa?tV_", "type": "خدمات"},
+      {"code": "472672372", "name": "اياد طارق نور الدين عبد الرحمن محمد", "user": "472672372", "pass": "M!9AJ7dq", "type": "خدمات"},
+      {"code": "472837461", "name": "اياد ناصر فؤاد رضوان", "user": "472837461", "pass": "bB6?4gbE", "type": "خدمات"},
+      {"code": "471979099", "name": "باسم عمرو أبو الفضل أحمد", "user": "471979099", "pass": "CXGte?5M", "type": "خدمات"},
+      {"code": "471112928", "name": "باسم وحيد قطب على عبدالعاطى", "user": "471112928", "pass": "g?T_6uZ4", "type": "خدمات"},
+      {"code": "469042570", "name": "بدر احمد عويس على", "user": "469042570", "pass": "x7HaQlCT", "type": "خدمات"},
+      {"code": "469973251", "name": "بدر يكر عمر حسين", "user": "469973251", "pass": "u6SlthC8", "type": "خدمات"},
+      {"code": "481746159", "name": "بكر ابراهيم بكر عبدالعزيز", "user": "481746159", "pass": "5i5B_8k?", "type": "خدمات"},
+      {"code": "487164221", "name": "بلال محمود محمد محمود", "user": "487164221", "pass": "8CzH_XOT", "type": "خدمات"},
+      {"code": "471550174", "name": "بيتر رجائى سمير مسعد خليل", "user": "471550174", "pass": "cH?ff6ba", "type": "خدمات"},
+      {"code": "471303948", "name": "بيشوى عبد الله نتعى عبد الله", "user": "471303948", "pass": "6HYPX_td", "type": "خدمات"},
+      {"code": "473373551", "name": "تامر يوسف محمد حسين", "user": "473373551", "pass": "Res!Zrj5", "type": "خدمات"},
+      {"code": "473172646", "name": "تيم وليد عبد الكريم احمد", "user": "473172646", "pass": "BLg4EWT!", "type": "خدمات"},
+      {"code": "472912887", "name": "جابر طارق جابر طلبه الكرش", "user": "472912887", "pass": "4YS!oPEF", "type": "خدمات"},
+      {"code": "472912926", "name": "جاسر كريم رمضان على", "user": "472912926", "pass": "JqGv7V_s", "type": "خدمات"},
+      {"code": "472510702", "name": "حازم محمد فتحى محمود", "user": "472510702", "pass": "Yy3Zlmva", "type": "خدمات"},
+      {"code": "470745813", "name": "حسام حسن حسين هنداوى", "user": "470745813", "pass": "9aU_4CFa", "type": "خدمات"},
+      {"code": "472153229", "name": "حسام حسن محمد فتحى", "user": "472153229", "pass": "H4D_SSug", "type": "خدمات"},
+      {"code": "470780208", "name": "حسام سامى رضانه محمد", "user": "470780208", "pass": "N!6UQtdP", "type": "خدمات"},
+      {"code": "479916437", "name": "حسام محمد السيد أحمد احمد الجوهرى", "user": "479916437", "pass": "2tCJ!s9k", "type": "خدمات"},
+      {"code": "464558490", "name": "حسن شحات محمد شريف", "user": "464558490", "pass": "4Gn!2DfW", "type": "خدمات"},
+      {"code": "470756024", "name": "حسن صابر عثمان محمد", "user": "470756024", "pass": "jEC3!LS4", "type": "خدمات"},
+      {"code": "470763595", "name": "حسن محمد انور ابراهيم", "user": "470763595", "pass": "p?RM5iaJ", "type": "خدمات"},
+      {"code": "471481553", "name": "حسن محمد كامل حسن عبدالرحمن", "user": "471481553", "pass": "3_M8fSvC", "type": "خدمات"},
+      {"code": "471342450", "name": "حسنى وائل حسنى احمد", "user": "471342450", "pass": "X_KG39jU", "type": "خدمات"},
+      {"code": "473891547", "name": "حسين احمد السيد يوسف", "user": "473891547", "pass": "8Pi23PFk", "type": "خدمات"},
+      {"code": "472672923", "name": "حسين محمد حسين سيد محمد", "user": "472672923", "pass": "NGB9z!D9", "type": "خدمات"},
+      {"code": "470811335", "name": "حمدى عماد حمدى احمد محمد", "user": "470811335", "pass": "XZeQJP_9", "type": "خدمات"},
+      {"code": "472902684", "name": "سيف الشهاوى عبد العال سليمان اسماعيل", "user": "472902684", "pass": "xWRwL?c4", "type": "رسمي"},
+      {"code": "468801598", "name": "سيف عبدالسلام عبدالرازق عبدالحليم", "user": "468801598", "pass": "P!aqh2Ec", "type": "رسمي"},
+      {"code": "471166958", "name": "سيف على عيد على احمد", "user": "471166958", "pass": "QgWM2?2n", "type": "رسمي"},
+      {"code": "468802824", "name": "سيف فرج عيد فرج", "user": "468802824", "pass": "p9Nj7_7e", "type": "رسمي"},
+      {"code": "476514323", "name": "سيف محمد رمضان ابو النور عبد السميع", "user": "476514323", "pass": "!DEy!B7L", "type": "رسمي"},
+      {"code": "481914015", "name": "شادى محمد حامد احمد الروينى", "user": "481914015", "pass": "!UwAg5DS", "type": "رسمي"},
+      {"code": "471579914", "name": "شريف محمد حمدان عبد النبي", "user": "471579914", "pass": "B94xR__z", "type": "رسمي"},
+      {"code": "469296826", "name": "شهاب محمد السيد حسين", "user": "469296826", "pass": "E_?q5KR!", "type": "رسمي"},
+      {"code": "473067763", "name": "صابر عمرو صابر على", "user": "473067763", "pass": "_9Y82xZX", "type": "رسمي"},
+      {"code": "468809415", "name": "ضياء محمد رمضان محمد", "user": "468809415", "pass": "wvdV_Vx3", "type": "رسمي"},
+      {"code": "468801055", "name": "عادل صابر عادل عبدالحليم", "user": "468801055", "pass": "5M_2oj8P", "type": "رسمي"},
+      {"code": "478392754", "name": "عاصم مصطفى عبد المنعم محمد", "user": "478392754", "pass": "E!3P8mgh", "type": "رسمي"},
+      {"code": "471164409", "name": "عبد الرحمن السيد احمد العنانى محمد على عباس", "user": "471164409", "pass": "Tbr?Rej7", "type": "رسمي"},
+      {"code": "471308120", "name": "عبد الرحمن خالد لطفى احمد", "user": "471308120", "pass": "KcTs9g_z", "type": "رسمي"},
+      {"code": "471307850", "name": "عبد الرحمن عادل عبد الله شحات", "user": "471307850", "pass": "b5k_gK4M", "type": "رسمي"},
+      {"code": "471206725", "name": "عبد الرحمن عزت نادى بدر قطب", "user": "471206725", "pass": "T!fRGb7E", "type": "رسمي"},
+      {"code": "471836630", "name": "عبد الرحمن عصام سيد عبد الحليم", "user": "471836630", "pass": "9X7nAxr?", "type": "رسمي"},
+      {"code": "471721587", "name": "عبد الرحمن على احمد حسن", "user": "471721587", "pass": "?jy?R!9n", "type": "رسمي"},
+      {"code": "472913443", "name": "عبد الرحمن محمد احمد سيد عطيه", "user": "472913443", "pass": "cvB?3NG!", "type": "رسمي"},
+      {"code": "475958699", "name": "عبد الرحمن محمد عبد الله هاشم اسماعيل", "user": "475958699", "pass": "x_T!JVk8", "type": "رسمي"},
+      {"code": "471535124", "name": "مروان محمود عبد المنعم محمود", "user": "471535124", "pass": "vsdt9HP?", "type": "طالب"},
+      {"code": "482819468", "name": "مسلم عثمان بدوي عثمان", "user": "482819468", "pass": "88uMK3V?", "type": "طالب"},
+      {"code": "473181331", "name": "مصطفى احمد محمد حسين", "user": "473181331", "pass": "?r62N!d5", "type": "طالب"},
+      {"code": "470868447", "name": "مصطفى السعيد ابراهيم نصر صالح", "user": "470868447", "pass": "GTGn4c?Y", "type": "طالب"},
+      {"code": "473118689", "name": "مصطفى ايمن حسين محمد", "user": "473118689", "pass": "?s6Qm2s!", "type": "طالب"},
+      {"code": "468827009", "name": "مصطفى خالد سعيد حسن", "user": "468827009", "pass": "?H6k!Z_q", "type": "طالب"},
+      {"code": "473118317", "name": "مصطفى شوربجى بهجات رمضان", "user": "473118317", "pass": "aE?b62eR", "type": "طالب"},
+      {"code": "471316300", "name": "مصطفى عاطف فتحى محمد", "user": "471316300", "pass": "X7yCATp?", "type": "طالب"},
+      {"code": "463833985", "name": "مصطفى محمد رشدى على", "user": "463833985", "pass": "6J!cMtaU", "type": "طالب"},
+      {"code": "470875402", "name": "مصطفى محمود رفعت عبدالرحمن عراقى", "user": "470875402", "pass": "sbZ8Zi?!", "type": "طالب"},
+      {"code": "471206449", "name": "مصطفى محمود محمد محمود سليم", "user": "471206449", "pass": "5!etDMfv", "type": "طالب"},
+      {"code": "472911455", "name": "مصطفى هانى عبد الرحمن محمد عبد الوهاب", "user": "472911455", "pass": "AptY79t_", "type": "طالب"},
+      {"code": "466459150", "name": "مصطفى مبروك رمضان عوض", "user": "466459150", "pass": "By8D?N95", "type": "طالب"},
+      {"code": "471379582", "name": "معاذ حمدى سعيد فرج", "user": "471379582", "pass": "TNy2uV?T", "type": "طالب"},
+      {"code": "471316173", "name": "معاذ عيد مصطفى محمود", "user": "471316173", "pass": "SX_UCCy3", "type": "طالب"},
+      {"code": "468810020", "name": "معاذ محمد عبدالمنعم طه", "user": "468810020", "pass": "7h8?Gtmb", "type": "طالب"}
+    ];
+
+    
+    let mode = 'code';  // default to code search since user prefers it
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.mode === m);
+      });
+      const namePanel = document.getElementById('namePanel');
+      const codePanel = document.getElementById('codePanel');
+      if (namePanel) namePanel.style.display = m === 'name' ? 'block' : 'none';
+      if (codePanel) codePanel.style.display = m === 'code' ? 'block' : 'none';
+      const result = document.getElementById('result');
+      if (result) result.classList.remove('show', 'error');
+    }
+
+    function normalize(str) {
+      return (str || '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('result');
+      el.className = 'result show error';
+      el.innerHTML = '<h2>✕ ' + msg + '</h2>';
+    }
+
+    function showResult(s) {
+      const el = document.getElementById('result');
+      el.className = 'result show';
+      el.innerHTML = `
+        <h2>✓ تم العثور على الحساب</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">اسم الطالب</span>
+            <span class="value">${s.name}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">كود الطالب</span>
+            <span class="value">${s.code}
+              <button class="copy-btn" onclick="copyText('${s.code}')">نسخ</button>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">اسم المستخدم</span>
+            <span class="value">${s.user}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">كلمة المرور</span>
+            <span class="value">${s.pass}
+              <button class="copy-btn" onclick="copyText('${s.pass.replace(/'/g, "\\'")}')">نسخ</button>
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => alert('تم النسخ')).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); alert('تم النسخ'); } catch(e) {}
+      document.body.removeChild(ta);
+    }
+
+    // ===== Admin system =====
+    let protectedCodes = JSON.parse(localStorage.getItem("protectedStudents") || "[]");
+    const ADMIN_USER = "X9k#mP2$vL8@qR7!";
+    const ADMIN_PASS = "Hg$4nB!9xQ2*wE6&zT1";
+
+    function openAdminLogin() {
+      document.getElementById("adminLoginModal").classList.add("show");
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("adminUser").value = "";
+      document.getElementById("adminPass").value = "";
+    }
+
+    function closeAdminLogin() {
+      document.getElementById("adminLoginModal").classList.remove("show");
+    }
+
+    function adminLogin() {
+      const u = document.getElementById("adminUser").value;
+      const p = document.getElementById("adminPass").value;
+      if (u === ADMIN_USER && p === ADMIN_PASS) {
+        closeAdminLogin();
+        document.getElementById("adminPanel").classList.add("show");
+        renderProtectedList();
+      } else {
+        document.getElementById("loginError").style.display = "block";
+      }
+    }
+
+    function closeAdminPanel() {
+      document.getElementById("adminPanel").classList.remove("show");
+    }
+
+    function findStudentToProtect() {
+      const code = document.getElementById("protectCode").value.trim();
+      const res = document.getElementById("protectResult");
+      if (!code) {
+        res.classList.remove("show");
+        return;
+      }
+      const s = students.find(st => st.code === code);
+      if (!s) {
+        res.classList.add("show");
+        document.getElementById("protectName").textContent = "لم يتم العثور على الطالب";
+        document.getElementById("protectCodeShow").textContent = "";
+        document.getElementById("protectBtn").style.display = "none";
+        return;
+      }
+      res.classList.add("show");
+      document.getElementById("protectName").textContent = s.name;
+      document.getElementById("protectCodeShow").textContent = "الكود: " + s.code;
+      document.getElementById("protectBtn").style.display = "inline-block";
+      if (protectedCodes.includes(code)) {
+        document.getElementById("protectBtn").textContent = "إلغاء الحماية";
+        document.getElementById("protectBtn").className = "btn-unprotect";
+      } else {
+        document.getElementById("protectBtn").textContent = "حماية هذا الطالب";
+        document.getElementById("protectBtn").className = "btn-protect";
+      }
+    }
+
+    function toggleProtect() {
+      const code = document.getElementById("protectCode").value.trim();
+      if (!code) return;
+      if (protectedCodes.includes(code)) {
+        protectedCodes = protectedCodes.filter(c => c !== code);
+      } else {
+        protectedCodes.push(code);
+      }
+      localStorage.setItem("protectedStudents", JSON.stringify(protectedCodes));
+      findStudentToProtect();
+      renderProtectedList();
+    }
+
+    function renderProtectedList() {
+      const list = document.getElementById("protectedList");
+      if (!list) return;
+      if (protectedCodes.length === 0) {
+        list.innerHTML = '<p style="color:#64748b;font-size:0.9rem;">لا يوجد طلاب محميون حالياً</p>';
+        return;
+      }
+      list.innerHTML = protectedCodes.map(code => {
+        const s = students.find(st => st.code === code);
+        const name = s ? s.name : "غير معروف";
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <span>${name} <small style="color:#64748b">(${code})</small></span>
+          <button class="btn-unprotect" style="padding:4px 10px;font-size:0.8rem;" onclick="unprotectCode('${code}')">إلغاء</button>
+        </div>`;
+      }).join("");
+    }
+
+    function unprotectCode(code) {
+      protectedCodes = protectedCodes.filter(c => c !== code);
+      localStorage.setItem("protectedStudents", JSON.stringify(protectedCodes));
+      renderProtectedList();
+      if (document.getElementById("protectCode").value.trim() === code) {
+        findStudentToProtect();
+      }
+    }
+
+    // Main search function
+    function search() {
+      const resultEl = document.getElementById("result");
+      resultEl.classList.remove("show", "error");
+
+      let found = null;
+
+      if (mode === "code") {
+        const code = document.getElementById("codeInput").value.trim();
+        if (!code) {
+          showError("يرجى إدخال كود الطالب");
+          return;
+        }
+        if (protectedCodes.includes(code)) {
+          showError("لم يتم العثور على طالب بهذا الكود");
+          return;
+        }
+        found = students.find(s => s.code === code);
+        if (!found) {
+          showError("لم يتم العثور على طالب بهذا الكود");
+          return;
+        }
+      } else {
+        const inputName = document.getElementById("nameInput").value.trim();
+        if (!inputName) {
+          showError("يرجى إدخال اسم الطالب");
+          return;
+        }
+        const words = normalize(inputName).split(" ").filter(Boolean);
+        if (words.length < 3) {
+          showError("يجب إدخال الاسم بثلاث كلمات على الأقل (يفضل الرباعي)");
+          return;
+        }
+
+        found = students.find(s => {
+          if (protectedCodes.includes(s.code)) return false;
+          return normalize(s.name) === normalize(inputName);
+        });
+
+        if (!found && words.length >= 4) {
+          found = students.find(s => {
+            if (protectedCodes.includes(s.code)) return false;
+            const sWords = normalize(s.name).split(" ").filter(Boolean);
+            return sWords.length >= 4 && sWords.slice(0, 4).join(" ") === words.slice(0, 4).join(" ");
+          });
+        }
+
+        if (!found) {
+          found = students.find(s => {
+            if (protectedCodes.includes(s.code)) return false;
+            return normalize(s.name).startsWith(normalize(inputName)) || normalize(inputName).startsWith(normalize(s.name));
+          });
+        }
+
+        if (!found) {
+          showError("لم يتم العثور على طالب بهذا الاسم. تأكد من كتابة الاسم كما هو في الكشف.");
+          return;
+        }
+      }
+
+      showResult(found);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set default mode to code
+      setMode('code');
+      
+      const nameInput = document.getElementById('nameInput');
+      const codeInput = document.getElementById('codeInput');
+      if (nameInput) nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+      if (codeInput) codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+    });
+
+
+  </script>
+
+  <!-- زر دخول الأدمن -->
+  <button class="admin-btn" onclick="openAdminLogin()">دخول الأدمن</button>
+
+  <!-- نافذة تسجيل الدخول -->
+  <div class="admin-modal" id="adminLoginModal">
+    <div class="admin-box">
+      <h2>🔐 دخول لوحة الأدمن</h2>
+      <label>اسم المستخدم</label>
+      <input type="text" id="adminUser" autocomplete="off" placeholder="اسم المستخدم">
+      <label>كلمة المرور</label>
+      <input type="password" id="adminPass" placeholder="كلمة المرور">
+      <div class="admin-actions">
+        <button class="btn-login" onclick="adminLogin()">دخول</button>
+        <button class="btn-cancel" onclick="closeAdminLogin()">إلغاء</button>
+      </div>
+      <p id="loginError" style="color:#f87171;text-align:center;margin-top:12px;font-size:0.9rem;display:none;">بيانات الدخول غير صحيحة</p>
+    </div>
+  </div>
+
+  <!-- لوحة الأدمن -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel-box">
+      <h2>🛡️ لوحة حماية الحسابات</h2>
+      <p class="subtitle">ابحث بكود الطالب لحماية بياناته من الظهور في البحث</p>
+      
+      <label>كود الطالب</label>
+      <input type="text" id="protectCode" placeholder="أدخل كود الطالب" inputmode="numeric">
+      <button class="search-btn" style="margin-top:12px;" onclick="findStudentToProtect()">بحث</button>
+      
+      <div class="protect-result" id="protectResult">
+        <div class="name" id="protectName"></div>
+        <div class="code" id="protectCodeShow"></div>
+        <button id="protectBtn" class="btn-protect" onclick="toggleProtect()">حماية هذا الطالب</button>
+      </div>
+
+      <div class="protected-list">
+        <h3>الطلاب المحميون حاليًا</h3>
+        <div id="protectedList"></div>
+      </div>
+
+      <button class="close-admin" onclick="closeAdminPanel()">إغلاق لوحة الأدمن</button>
+    </div>
+  </div>
+
+</body>
+</html>
